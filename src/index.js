@@ -6,6 +6,7 @@ const route = require("./routes/route");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+mongoose.set('strictQuery', true)
 mongoose
   .connect(
     "mongodb+srv://vintiray:7091201680@cluster0.ahtxrqr.mongodb.net/group07Database",
