@@ -9,46 +9,32 @@ const createUrl = async (req, res) => {
   try {
     let data = req.body;
 
-    if (Object.keys(data).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, message: "please send some data in body" });
+    if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "please send some data in body" })};
 
     let longUrl = data.longUrl;
-    longUrl = longUrl.trim();
+        longUrl = longUrl.trim();
 
-    if (!validUrl.isUri(longUrl))
-      return res
-        .status(400)
-        .send({ status: false, message: "please enter valid url" });
+    if (!validUrl.isUri(longUrl)) { return res.status(400).send({ status: false, message: "please enter valid url" })};
 
     const isUrlExist = await axios
       .get(longUrl)
       .then(() => longUrl)
       .catch(() => null);
 
-    if (!isUrlExist)
-      return res
-        .status(404)
-        .send({ status: false, message: "url doesn't exist" });
+    if (!isUrlExist) { return res.status(404).send({ status: false, message: "url doesn't exist" })};
 
     const findUrl = await urlModel.findOne({ longUrl: longUrl });
 
-    if (findUrl) {
-      return res.status(200).send({
-        status: true,
+    if (findUrl) { return res.status(200).send({ status: true,
         data: {
           longUrl: findUrl.longUrl,
           shortUrl: findUrl.shortUrl,
-          urlCode: findUrl.urlCode,
-        },
-      });
-    }
+          urlCode: findUrl.urlCode 
+        }
+      })};
 
     let urlCode = shortid.generate(longUrl);
-
     let baseUrl = req.protocol + "://" + req.get("host");
-
     let shorturl = baseUrl + "/" + urlCode;
 
     data.urlCode = urlCode;
@@ -59,7 +45,7 @@ const createUrl = async (req, res) => {
     const responseData = {
       longUrl: createUrl.longUrl,
       shortUrl: createUrl.shortUrl,
-      urlCode: createUrl.urlCode,
+      urlCode: createUrl.urlCode
     };
 
     res.status(201).send({ status: true, data: responseData });
@@ -73,20 +59,13 @@ const createUrl = async (req, res) => {
 const getData = async (req, res) => {
   try {
     let urlCode = req.params.urlCode;
+        urlCode = urlCode.trim();
 
-    urlCode = urlCode.trim();
-
-    if (!urlCode)
-      return res
-        .status(400)
-        .send({ status: false, message: "please enter url in param" });
+    if (!urlCode) { return res.status(400).send({ status: false, message: "please enter url in param" })};
 
     const findData = await urlModel.findOne({ urlCode: urlCode });
 
-    if (!findData)
-      return res
-        .status(404)
-        .send({ status: false, message: "no data exist with this urlCode" });
+    if (!findData) { return res.status(404).send({ status: false, message: "no data exist with this urlCode" })};
 
     res.status(302).redirect(findData.longUrl);
   } catch (error) {
