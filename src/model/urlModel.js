@@ -1,22 +1,27 @@
-const mongoose=require("mongoose")
-const urlSchema=new mongoose.Schema({
-    urlCode:{
-        type:String,
-        required:true,
-        unique:true,
-        lowercase:true,
-        trim:true
+const mongoose = require("mongoose");
+const urlSchema = new mongoose.Schema(
+  {
+    urlCode: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
-    longUrl:{
-        type:String,
-        required:true,
+    longUrl: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    shortUrl:{
-        type:String,
-        required:true,
-        unique:true,
-    }
-},{timestamps:true})
+    shortUrl: {
+      type: String,
+      required: true,
+      lowercase: true,
+      unique: true,
+    },
+  },
+  { timestamps: true }
+);
 
-module.exports=mongoose.model("url",urlSchema)
+module.exports = mongoose.model("url", urlSchema);
 // { urlCode: { mandatory, unique, lowercase, trim }, longUrl: {mandatory, valid url}, shortUrl: {mandatory, unique} }

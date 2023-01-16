@@ -1,13 +1,17 @@
-const express=require("express")
-const router=express.Router()
-const urlController=require("../controllers/urlController")
- 
+const express = require("express");
+const router = express.Router();
+const urlController = require("../controllers/urlController");
 
-router.post("/url/shorten",urlController.createUrl)
+//======================post API=====================
 
-router.get("/:urlCode",urlController.getData)
+router.post("/url/shorten", urlController.createUrl);
 
-router.all("/*",(req,res)=>{
-    res.status(400).send({message:"invalid path"})
-})
-module.exports=router;
+//======================get API====================
+
+router.get("/:urlCode", urlController.getData);
+
+router.all("/*", (req, res) => {
+  res.status(400).send({ message: "invalid path" });
+});
+
+module.exports = router;
