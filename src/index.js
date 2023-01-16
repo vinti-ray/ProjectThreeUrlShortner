@@ -8,7 +8,7 @@ app.use(express.urlencoded({extended:true}));
 
 mongoose
   .connect(
-    "mongodb+srv://vintiray:7091201680@cluster0.ahtxrqr.mongodb.net/groupXDatabase",
+    "mongodb+srv://vintiray:7091201680@cluster0.ahtxrqr.mongodb.net/group07Database",
     {
       useNewUrlParser: true,
     }
