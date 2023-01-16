@@ -15,14 +15,15 @@ const createUrl = async (req, res) => {
         .send({ status: false, message: "please send some data in body" });
 
     let longUrl = data.longUrl;
+    longUrl = longUrl.trim();
 
-    if (!validUrl.isUri(longUrl.trim()))
+    if (!validUrl.isUri(longUrl))
       return res
         .status(400)
         .send({ status: false, message: "please enter valid url" });
 
     const isUrlExist = await axios
-      .get(longUrl.trim())
+      .get(longUrl)
       .then(() => longUrl)
       .catch(() => null);
 
@@ -72,6 +73,8 @@ const createUrl = async (req, res) => {
 const getData = async (req, res) => {
   try {
     let urlCode = req.params.urlCode;
+
+    urlCode = urlCode.trim();
 
     if (!urlCode)
       return res
