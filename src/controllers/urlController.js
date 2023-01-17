@@ -12,7 +12,10 @@ const createUrl = async (req, res) => {
     if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "please send some data in body" })};
 
     let longUrl = data.longUrl;
-        longUrl = longUrl.trim();
+
+    if(typeof longUrl!="string") { return res.status(400).send({ status: false, message: "type of url must be a string" })};
+
+    longUrl = longUrl.trim();
 
     if (!validUrl.isUri(longUrl)) { return res.status(400).send({ status: false, message: "please enter valid url" })};
 
@@ -21,7 +24,7 @@ const createUrl = async (req, res) => {
       .then(() => longUrl)
       .catch(() => null);
 
-    if (!isUrlExist) { return res.status(404).send({ status: false, message: "url doesn't exist" })};
+    if (!isUrlExist) { return res.status(400).send({ status: false, message: "url doesn't exist" })};
 
     const findUrl = await urlModel.findOne({ longUrl: longUrl });
 
@@ -33,12 +36,11 @@ const createUrl = async (req, res) => {
         }
       })};
 
-    let urlCode = shortid.generate(longUrl);
+    let urlCode = shortid.generate();
     let baseUrl = req.protocol + "://" + req.get("host");
-    let shorturl = baseUrl + "/" + urlCode;
+    let shortUrl = baseUrl + "/" + urlCode;
 
-    data.urlCode = urlCode;
-    data.shortUrl = shorturl;
+    data={urlCode,shortUrl,longUrl}
 
     const createUrl = await urlModel.create(data);
 
@@ -62,6 +64,8 @@ const getData = async (req, res) => {
         urlCode = urlCode.trim();
 
     if (!urlCode) { return res.status(400).send({ status: false, message: "please enter url in param" })};
+
+    if(!shortid.isValid(urlCode)) { return res.status(400).send({ status: false, message: "urlCode is not a valid shortid" })};
 
     const findData = await urlModel.findOne({ urlCode: urlCode });
 
