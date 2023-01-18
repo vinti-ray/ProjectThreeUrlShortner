@@ -60,6 +60,21 @@ If you haven’t used tinyurl.com before, please try creating a new shortened UR
 - Implement what makes sense to you and we will build understanding over the demo discussion. 
 - Figure out if you can also use caching while redirecting to the original url from the shortedned url
 
+
+
++Consider that Twitter has this trend where a famous person with a wide following when posts a link, the link gets frequented in millions within a day.
+
++So in our application we would want to implement caching so that a newly created link is cached for 24 hours. When a person uses a short url, the long url should be retrieved from cache in the first 24 hours of that url being created.
+
++- Use caching while fetching the shortened url to minimize db calls.
+
+
+
+
++- Implement what makes sense to you and we will build understanding over the assessment of this project. You should understand and should be able to explain the logic that you have implemented.
+
+
+
 ## Response
 
 ### Successful Response structure
