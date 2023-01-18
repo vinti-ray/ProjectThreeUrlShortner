@@ -133,13 +133,13 @@ const getUrl = async (req, res) => {
 
     let findUrl = await GET_ASYNC(`${urlCode}`)
     if(findUrl) {
-      res.status(302).redirect(findUrl);
+      return res.status(302).redirect(JSON.parse(findUrl));
     } else {
       const findData = await urlModel.findOne({ urlCode: urlCode });
 
       if (!findData) { return res.status(404).send({ status: false, message: "no data exist with this urlCode" })};
 
-      await SET_ASYNC(`${urlCode}`,100, JSON.stringify(findData.longUrl))
+      await SET_ASYNC(`${urlCode}`,86400, JSON.stringify(findData.longUrl))
       res.status(302).redirect(findData.longUrl);
     }
     // const findData = await urlModel.findOne({ urlCode: urlCode });
