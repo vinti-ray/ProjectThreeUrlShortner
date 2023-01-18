@@ -4,11 +4,11 @@ const urlController = require("../controllers/urlController");
 
 //======================post API=====================
 
-router.post("/url/shorten", urlController.createUrl);
+router.post("/url/shorten", urlController.UrlShorten);
 
 //======================get API====================
 
-router.get("/:urlCode", urlController.getData);
+router.get("/:urlCode", urlController.getUrl);
 
 router.all("/*", (req, res) => {
   res.status(400).send({ message: "invalid path" });

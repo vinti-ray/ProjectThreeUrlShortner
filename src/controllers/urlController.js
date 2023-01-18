@@ -5,7 +5,7 @@ const axios = require("axios");
 
 //=========================POST /url/shorten==========================
 
-const createUrl = async (req, res) => {
+const UrlShorten = async (req, res) => {
   try {
     let data = req.body;
 
@@ -58,7 +58,7 @@ const createUrl = async (req, res) => {
 
 //================================== GET /:urlCode ==============================
 
-const getData = async (req, res) => {
+const getUrl = async (req, res) => {
   try {
     let urlCode = req.params.urlCode;
         urlCode = urlCode.trim();
@@ -77,5 +77,5 @@ const getData = async (req, res) => {
   }
 };
 
-module.exports.createUrl = createUrl;
-module.exports.getData = getData;
+module.exports.UrlShorten = UrlShorten;
+module.exports.getUrl = getUrl;
