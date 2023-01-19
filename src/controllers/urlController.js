@@ -31,20 +31,26 @@ const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 //=========================POST /url/shorten==========================
 
-const UrlShorten = async (req, res) => {
+const urlShorten = async (req, res) => {
   try {
     let data = req.body;
     
-    let longUrl = data.longUrl;
-    longUrl = longUrl.trim();
+
     if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "please send some data in body" })};
 
+    let longUrl = data.longUrl;
+
+
     if(typeof longUrl!="string") { return res.status(400).send({ status: false, message: "type of url must be a string" })};
+
+    longUrl = longUrl.trim();
  
     if (!validUrl.isUri(longUrl)) { return res.status(400).send({ status: false, message: "please enter valid url" })};
 
-    let cahcedUrl = await GET_ASYNC(`${longUrl}`)
-    if(cahcedUrl) { return res.status(200).send({status:true,message:"data coming from cache",data:JSON.parse(cahcedUrl)}) } 
+
+
+    let cachedUrl = await GET_ASYNC(`${longUrl}`)
+    if(cachedUrl) { return res.status(200).send({status:true,message:"data coming from cache",data:JSON.parse(cachedUrl)}) } 
 
     const findUrl = await urlModel.findOne({ longUrl: longUrl });
 
@@ -61,7 +67,7 @@ const UrlShorten = async (req, res) => {
       .then(() => longUrl)
       .catch(() => null);
 
-    if (!isUrlExist) { return res.status(400).send({ status: false, message: "url doesn't exist" })};
+    if (!isUrlExist) { return res.status(404).send({ status: false, message: "url doesn't exist" })};
 
 
     let urlCode = shortid.generate();
@@ -115,7 +121,7 @@ const getUrl = async (req, res) => {
   }
 };
 
-module.exports.UrlShorten = UrlShorten;
+module.exports.urlShorten = urlShorten;
 module.exports.getUrl = getUrl;
 
 

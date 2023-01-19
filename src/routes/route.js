@@ -4,7 +4,7 @@ const urlController = require("../controllers/urlController");
 
 //======================post API=====================
 
-router.post("/url/shorten", urlController.UrlShorten);
+router.post("/url/shorten", urlController.urlShorten);
 
 //======================get API====================
 
