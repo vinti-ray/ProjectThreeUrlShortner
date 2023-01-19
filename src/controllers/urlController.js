@@ -5,6 +5,8 @@ const axios = require("axios");
 const redis =require("redis")
 const { promisify }=require("util")
 
+
+//1. Connect to the redis server
 const redisClient = redis.createClient(
   17213,
   "redis-17213.c264.ap-south-1-1.ec2.cloud.redislabs.com",
@@ -25,7 +27,7 @@ redisClient.on("connect", async function () {
 const SET_ASYNC = promisify(redisClient.SETEX).bind(redisClient);
 
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
-
+ 
 
 //=========================POST /url/shorten==========================
 
@@ -34,19 +36,25 @@ const UrlShorten = async (req, res) => {
     let data = req.body;
     
     let longUrl = data.longUrl;
-
-    let cahcedUrl = await GET_ASYNC(`${longUrl}`)
-    if(cahcedUrl) {
-     return res.status(200).send({status:true,message:"data coming from cache",data:JSON.parse(cahcedUrl)})
-    } 
-    
-   if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "please send some data in body" })};
+    longUrl = longUrl.trim();
+    if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "please send some data in body" })};
 
     if(typeof longUrl!="string") { return res.status(400).send({ status: false, message: "type of url must be a string" })};
-
-    longUrl = longUrl.trim();
-
+ 
     if (!validUrl.isUri(longUrl)) { return res.status(400).send({ status: false, message: "please enter valid url" })};
+
+    let cahcedUrl = await GET_ASYNC(`${longUrl}`)
+    if(cahcedUrl) { return res.status(200).send({status:true,message:"data coming from cache",data:JSON.parse(cahcedUrl)}) } 
+
+    const findUrl = await urlModel.findOne({ longUrl: longUrl });
+
+    if (findUrl) { return res.status(200).send({ status: true,message:"data coming from db",
+        data: {
+          longUrl: findUrl.longUrl,
+          shortUrl: findUrl.shortUrl,
+          urlCode: findUrl.urlCode 
+        }
+      })};
 
     const isUrlExist = await axios
       .get(longUrl)
@@ -55,15 +63,6 @@ const UrlShorten = async (req, res) => {
 
     if (!isUrlExist) { return res.status(400).send({ status: false, message: "url doesn't exist" })};
 
-    const findUrl = await urlModel.findOne({ longUrl: longUrl });
-
-    if (findUrl) { return res.status(200).send({ status: true,
-        data: {
-          longUrl: findUrl.longUrl,
-          shortUrl: findUrl.shortUrl,
-          urlCode: findUrl.urlCode 
-        }
-      })};
 
     let urlCode = shortid.generate();
     let baseUrl = req.protocol + "://" + req.get("host");
@@ -73,23 +72,8 @@ const UrlShorten = async (req, res) => {
     data={urlCode,shortUrl,longUrl}
 
 
-    //3. Start using the redis commad
-  // let cahcedUrl = await GET_ASYNC(`${longUrl}`)
-
-  // if(cahcedUrl) {
-  //  res.status(200).send(cahcedUrl)
-  // } else {
-    // const findUrl = await urlModel.findOne({ longUrl: longUrl });
-
-    // if (findUrl) { return res.status(200).send({ status: true,message:"data coming from db",
-    //     data: {
-    //       longUrl: findUrl.longUrl,
-    //       shortUrl: findUrl.shortUrl,
-    //       urlCode: findUrl.urlCode 
-    //     }
-    //   })};
-
       const createUrl = await urlModel.create(data);
+
       const responseData = {
       longUrl: createUrl.longUrl,
       shortUrl: createUrl.shortUrl,
@@ -97,24 +81,7 @@ const UrlShorten = async (req, res) => {
     };
       await SET_ASYNC(`${longUrl}`,86400,JSON.stringify(responseData))
       res.status(201).send({ status: true,message:"data created successfully", data: responseData });
-  // }
-
-
-    // const createUrl = await urlModel.create(data);
-
-    // await SET_ASYNC(`${createUrl.shortUrl}`, JSON.stringify(createUrl.longUrl))
-
-// +So in our application we would want to implement caching so that a newly created link is cached for 24 hours. When a person uses a short url, the long url should be retrieved from cache in the first 24 hours of that url being created.
-
-// +- Use caching while fetching the shortened url to minimize db calls.
-
-    // const responseData = {
-    //   longUrl: createUrl.longUrl,
-    //   shortUrl: createUrl.shortUrl,
-    //   urlCode: createUrl.urlCode
-    // };
-
-    // res.status(201).send({ status: true, data: responseData });
+  
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }
@@ -142,11 +109,7 @@ const getUrl = async (req, res) => {
       await SET_ASYNC(`${urlCode}`,86400, JSON.stringify(findData.longUrl))
       res.status(302).redirect(findData.longUrl);
     }
-    // const findData = await urlModel.findOne({ urlCode: urlCode });
 
-    // if (!findData) { return res.status(404).send({ status: false, message: "no data exist with this urlCode" })};
-
-    // res.status(302).redirect(findData.longUrl);
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }
@@ -155,5 +118,5 @@ const getUrl = async (req, res) => {
 module.exports.UrlShorten = UrlShorten;
 module.exports.getUrl = getUrl;
 
-//
+
 
