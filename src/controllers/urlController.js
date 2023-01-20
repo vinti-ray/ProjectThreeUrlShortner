@@ -54,8 +54,14 @@ const urlShorten = async (req, res) => {
     if(cachedUrl) { return res.status(200).send({status:true,message:"data coming from cache",data:JSON.parse(cachedUrl)}) } 
 
     const findUrl = await urlModel.findOne({ longUrl: longUrl });
+      
 
-    if (findUrl) { return res.status(200).send({ status: true,message:"data coming from db",
+
+    if (findUrl) {
+      
+      await SET_ASYNC(`${longUrl}`,86400,JSON.stringify({longUrl:findUrl.longUrl,shortUrl:findUrl.shortUrl,urlCode:findUrl.urlCode}))
+      
+      return res.status(200).send({ status: true,message:"data coming from db",
         data: {
           longUrl: findUrl.longUrl,
           shortUrl: findUrl.shortUrl,
