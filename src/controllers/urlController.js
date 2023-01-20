@@ -40,7 +40,8 @@ const urlShorten = async (req, res) => {
 
     let longUrl = data.longUrl;
 
-
+    if(!longUrl) { return res.status(400).send({ status: false, message: "longUrl is required" })};
+    
     if(typeof longUrl!="string") { return res.status(400).send({ status: false, message: "type of url must be a string" })};
 
     longUrl = longUrl.trim();
